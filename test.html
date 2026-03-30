@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Clase B Chile 2025 - 35 Preguntas</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; color: #1c1e21; padding: 20px; line-height: 1.5; }
+        .container { max-width: 700px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        h1 { color: #1877f2; text-align: center; font-size: 1.8rem; }
+        .progress-bar { height: 10px; background: #e4e6eb; border-radius: 5px; margin-bottom: 20px; overflow: hidden; }
+        #progress-fill { height: 100%; background: #1877f2; width: 0%; transition: 0.4s; }
+        .question { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; }
+        .options { list-style: none; padding: 0; }
+        .option { background: #f0f2f5; margin-bottom: 10px; padding: 12px 15px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .option:hover { background: #e4e6eb; }
+        .correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724; }
+        .incorrect { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; }
+        .feedback { display: none; margin-top: 15px; padding: 15px; border-radius: 8px; font-size: 0.95rem; border-left: 5px solid #1877f2; background: #e7f3ff; }
+        .btn { display: block; width: 100%; padding: 12px; background: #1877f2; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn:disabled { background: #bcc0c4; cursor: not-allowed; }
+        #result-area { text-align: center; display: none; }
+        .score-big { font-size: 3rem; color: #1877f2; margin: 10px 0; }
+        .double-point { color: #e67e22; font-size: 0.8rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Examen Teórico Clase B</h1>
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+    <div id="quiz-area">
+        <div id="q-number" style="font-size: 0.9rem; color: #65676b;"></div>
+        <div id="question" class="question"></div>
+        <ul id="options" class="options"></ul>
+        <div id="feedback" class="feedback"></div>
+        <button id="next-btn" class="btn" disabled>Continuar</button>
+    </div>
+
+    <div id="result-area">
+        <h2>Resultado del Test</h2>
+        <div class="score-big" id="final-score"></div>
+        <p id="final-msg"></p>
+        <button onclick="location.reload()" class="btn">Intentar de nuevo</button>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    { q: "¿Cuál es la distancia de parada total?", o: ["Distancia de reacción", "Suma de reacción y frenado", "Distancia de frenado menos reacción"], a: 1, f: "Es la distancia total desde que percibes el peligro hasta que el vehículo se detiene por completo." },
+    { q: "La Ley Emilia sanciona a conductores que:", o: ["Conducen sin licencia", "Causan accidentes graves en estado de ebriedad y huyen", "No usan cinturón"], a: 1, f: "Sanciona con cárcel efectiva a quienes causan lesiones graves o muerte conduciendo ebrios, o huyen del lugar.", dp: true },
+    { q: "¿Cuál es el límite máximo de velocidad en zona urbana para vehículos livianos?", o: ["60 km/h", "50 km/h", "40 km/h"], a: 1, f: "Desde agosto de 2018, el límite máximo en zonas urbanas de Chile es de 50 km/h." },
+    { q: "¿Qué significa el efecto túnel al conducir con alcohol?", o: ["Ves mejor de lejos", "Se reduce la visión periférica (hacia los lados)", "Ves doble"], a: 1, f: "El alcohol reduce la capacidad de captar estímulos que vienen de los costados de la vía.", dp: true },
+    { q: "¿A qué distancia de una esquina es prohibido estacionar?", o: ["A menos de 5 metros", "A menos de 10 metros", "A menos de 20 metros"], a: 1, f: "La ley prohíbe estacionar a menos de 10 metros de una esquina para no restar visibilidad." },
+    { q: "¿Qué debe hacer ante un 'Ceda el Paso'?", o: ["Detenerse siempre", "Reducir velocidad y detenerse solo si viene un vehículo", "Acelerar para pasar rápido"], a: 1, f: "No requiere detención total obligatoria si no viene nadie, pero sí dar preferencia a quien circula por la otra vía." },
+    { q: "La distancia de reacción se ve afectada por:", o: ["El estado de los frenos", "El estado del conductor (cansancio/alcohol)", "El estado de los neumáticos"], a: 1, f: "La reacción depende exclusivamente del cerebro del conductor y su rapidez para procesar el peligro." },
+    { q: "¿Cuál es la profundidad mínima legal de los surcos de un neumático?", o: ["1.0 mm", "1.6 mm", "2.0 mm"], a: 1, f: "1.6 mm es el mínimo legal. Bajo eso, el neumático pierde adherencia y seguridad." },
+    { q: "En un cruce no regulado, ¿quién tiene la preferencia?", o: ["El que va más rápido", "El vehículo que se acerca por la derecha", "El vehículo que se acerca por la izquierda"], a: 1, f: "La regla básica de tránsito indica preferencia para quien viene por la derecha." },
+    { q: "¿Qué es el hidroplaneo?", o: ["El auto flota sobre una capa de agua", "El motor se apaga por lluvia", "Los frenos se calientan"], a: 0, f: "Ocurre cuando el agua separa el neumático del pavimento, haciendo perder el control del auto." },
+    { q: "El uso de cinturón de seguridad es obligatorio:", o: ["Solo en asientos delanteros", "Solo en carreteras", "En todos los asientos del vehículo"], a: 2, f: "Es obligatorio para todos los ocupantes en cualquier tipo de vía.", dp: true },
+    { q: "¿Cómo se debe llevar a un niño de 3 años en el auto?", o: ["En el asiento delantero con cinturón", "En un sistema de retención infantil (silla) adecuado", "En brazos de un adulto"], a: 1, f: "Los niños deben ir en sillas certificadas hasta cumplir los 9 años.", dp: true },
+    { q: "¿Qué indica una línea blanca continua al centro?", o: ["Se puede adelantar", "Prohibición de adelantar o sobrepasar", "Pista exclusiva buses"], a: 1, f: "La línea continua no debe ser traspasada ni circulada sobre ella." },
+    { q: "Al enfrentar una señal de 'PARE', usted debe:", o: ["Bajar la velocidad", "Detenerse por completo", "Pasar si no viene nadie"], a: 1, f: "La señal Pare exige una detención total de las ruedas antes de la línea de detención." },
+    { q: "La fatiga al conducir produce:", o: ["Aumento de concentración", "Menor tiempo de reacción", "Aumento del tiempo de reacción"], a: 2, f: "Estar cansado hace que tardes más segundos en decidir y actuar ante un riesgo." },
+    { q: "La 'Ley Tolerancia Cero' define estado de ebriedad desde:", o: ["0.31 g/l de alcohol", "0.8 g/l de alcohol", "0.5 g/l de alcohol"], a: 1, f: "De 0.31 a 0.79 es bajo la influencia; de 0.8 hacia arriba es estado de ebriedad.", dp: true },
+    { q: "¿Para qué sirven las luces de advertencia de peligro?", o: ["Para estacionar en doble fila", "Para avisar de una emergencia o detención", "Para conducir con niebla"], a: 1, f: "Solo deben usarse cuando el vehículo representa un peligro temporal para otros." },
+    { q: "Si el motor se sobrecalienta, ¿qué es lo primero que hace?", o: ["Echarle agua fría de inmediato", "Detenerse en un lugar seguro y esperar que enfríe", "Seguir conduciendo rápido"], a: 1, f: "Abrir el radiador en caliente o echar agua fría de golpe puede causar daños o quemaduras graves." },
+    { q: "El sistema ABS sirve para:", o: ["Frenar en menos distancia", "Evitar el bloqueo de ruedas y permitir maniobrar", "Aumentar la potencia del freno"], a: 1, f: "Su función principal es que puedas girar el volante mientras frenas a fondo sin que el auto patine recto." },
+    { q: "¿Cuándo debe usar luces altas en zonas rurales?", o: ["Siempre que esté oscuro", "Solo si no vienen vehículos en sentido contrario", "Solo en autopistas"], a: 1, f: "Se deben cambiar a luces bajas cuando se acerque un vehículo para no encandilar." },
+    { q: "Un conductor que consume marihuana:", o: ["Mejora su atención", "Sufre alteraciones en la percepción de distancias", "No tiene efectos"], a: 1, f: "Las drogas alteran gravemente la percepción del entorno y la coordinación.", dp: true },
+    { q: "¿A cuántos metros de un grifo de incendio se puede estacionar?", o: ["A más de 1 metro", "A más de 5 metros", "A más de 10 metros"], a: 1, f: "Debes dejar al menos 5 metros de distancia para el acceso de bomberos." },
+    { q: "La visión nocturna depende de:", o: ["La edad y capacidad de los ojos", "La marca del auto", "El color del pavimento"], a: 0, f: "La capacidad visual disminuye con la edad y el encandilamiento afecta más a conductores mayores." },
+    { q: "¿Qué debe hacer si revienta un neumático trasero?", o: ["Frenar fuerte", "Girar al lado contrario", "Mantener firme el volante y soltar el acelerador"], a: 2, f: "Es vital mantener la trayectoria recta hasta que el auto pierda velocidad por inercia." },
+    { q: "En una subida, ¿qué vehículo tiene la preferencia?", o: ["El que sube", "El que baja", "El más grande"], a: 0, f: "El vehículo que circula en sentido ascendente tiene preferencia sobre el que baja." },
+    { q: "¿Qué es un punto ciego?", o: ["Un faro malo", "Zona que no se ve por los espejos retrovisores", "Conducir con sol de frente"], a: 1, f: "Son áreas alrededor del vehículo que la carrocería oculta a la vista del conductor." },
+    { q: "Señales de color amarillo y forma de rombo son:", o: ["Informativas", "Reglamentarias", "De Advertencia de Peligro"], a: 2, f: "Advierten sobre riesgos próximos como curvas, cruces o estrechamientos." },
+    { q: "La presión de los neumáticos debe medirse:", o: ["Cuando están calientes", "Cuando están fríos", "Una vez al año"], a: 1, f: "El aire se expande con el calor; para una medida real, el neumático debe estar frío." },
+    { q: "Si un semáforo está apagado o parpadea, usted debe:", o: ["Pasar rápido", "Actuar como si fuera un cruce no regulado (derecha tiene preferencia)", "Esperar que alguien lo arregle"], a: 1, f: "Si el semáforo falla, rigen las reglas normales de preferencia de una intersección." },
+    { q: "Al adelantar a un ciclista, debe dejar una distancia de:", o: ["0.5 metros", "1.5 metros", "2.0 metros"], a: 1, f: "La ley exige al menos 1.5 metros de separación lateral para proteger al ciclista." },
+    { q: "¿Qué luz indica que el motor tiene baja presión de aceite?", o: ["Luz verde", "Luz roja con forma de aceitera", "Luz amarilla de motor"], a: 1, f: "Si se enciende la aceitera roja, debes detener el motor de inmediato para evitar daños fatales." },
+    { q: "Un choque a 50 km/h sin cinturón equivale a caer de:", o: ["Un primer piso", "Un cuarto piso", "Un décimo piso"], a: 1, f: "La fuerza del impacto a esa velocidad es similar a caer desde un 4to piso (aprox. 10 metros).", dp: true },
+    { q: "La berma de una carretera se puede usar para:", o: ["Adelantar por la derecha", "Detención de emergencia", "Circular a baja velocidad"], a: 1, f: "La berma no es una pista de circulación, solo es para emergencias." },
+    { q: "¿Cuándo es obligatorio llevar el chaleco reflectante?", o: ["Puesto siempre", "En el kit de seguridad, accesible desde el interior", "En la maleta bajo llave"], a: 1, f: "Debe estar a mano para que el conductor se lo ponga antes de bajar del auto en una emergencia." },
+    { q: "¿Qué significa una luz verde parpadeante en el semáforo?", o: ["Que va a cambiar a roja", "Que va a cambiar a amarilla", "Que puede acelerar"], a: 1, f: "El parpadeo de la luz verde advierte que el tiempo de paso está por terminar y vendrá la amarilla." }
+];
+
+let currentQ = 0;
+let score = 0;
+
+const qNumEl = document.getElementById('q-number');
+const qEl = document.getElementById('question');
+const optEl = document.getElementById('options');
+const feedEl = document.getElementById('feedback');
+const nextBtn = document.getElementById('next-btn');
+const progressFill = document.getElementById('progress-fill');
+
+function loadQ() {
+    const data = quizData[currentQ];
+    qNumEl.innerHTML = `Pregunta ${currentQ + 1} de 35 ${data.dp ? '<span class="double-point">(Doble Puntaje)</span>' : ''}`;
+    qEl.innerText = data.q;
+    optEl.innerHTML = "";
+    feedEl.style.display = "none";
+    nextBtn.disabled = true;
+    progressFill.style.width = `${(currentQ / 35) * 100}%`;
+
+    data.o.forEach((text, i) => {
+        const li = document.createElement('li');
+        li.className = 'option';
+        li.innerText = text;
+        li.onclick = () => select(i, li);
+        optEl.appendChild(li);
+    });
+}
+
+function select(idx, el) {
+    const correct = quizData[currentQ].a;
+    const isDouble = quizData[currentQ].dp;
+    const all = document.querySelectorAll('.option');
+    
+    all.forEach(o => o.style.pointerEvents = 'none');
+    
+    if(idx === correct) {
+        el.classList.add('correct');
+        score += (isDouble ? 2 : 1);
+    } else {
+        el.classList.add('incorrect');
+        all[correct].classList.add('correct');
+    }
+
+    feedEl.innerText = quizData[currentQ].f;
+    feedEl.style.display = "block";
+    nextBtn.disabled = false;
+}
+
+nextBtn.onclick = () => {
+    currentQ++;
+    if(currentQ < 35) loadQ();
+    else showRes();
+};
+
+function showRes() {
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('result-area').style.display = 'block';
+    progressFill.style.width = '100%';
+    
+    // El puntaje máximo es 38 (32 normales + 3 dobles)
+    const maxScore = 38;
+    const finalScoreEl = document.getElementById('final-score');
+    const msgEl = document.getElementById('final-msg');
+    
+    finalScoreEl.innerText = `${score} / ${maxScore}`;
+    
+    if(score >= 33) {
+        msgEl.innerHTML = "<b style='color:green'>¡FELICITACIONES! Has aprobado el simulacro.</b><br>Sigue repasando para mantener estos conocimientos frescos.";
+    } else {
+        msgEl.innerHTML = "<b style='color:red'>REPROBADO.</b><br>Necesitas al menos 33 puntos para aprobar el examen real. ¡Vuelve a estudiar el libro!";
+    }
+}
+
+loadQ();
+</script>
+</body>
+</html>
